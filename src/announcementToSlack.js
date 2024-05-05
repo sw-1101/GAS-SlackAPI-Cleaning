@@ -13,11 +13,11 @@ function setTrigger() {
   const time = date;
   time.setHours(12);
   time.setMinutes(00);
-  ScriptApp.newTrigger('main').timeBased().at(time).create();
+  ScriptApp.newTrigger('notifyCleaningPosition').timeBased().at(time).create();
 }
 
 // Slackへのメッセージ投稿メソッドおよび担当個所のローテーションメソッドを呼び出すメインメソッド
-function main() {
+function notifyCleaningPosition() {
   const sh = sheet();
   // メンバーが変わったらここの範囲を変更する。詳細は実シート参照
   const ranges = sh.getRange('A2:B7').getValues();
