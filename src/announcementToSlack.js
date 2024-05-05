@@ -1,5 +1,6 @@
 // mainメソッド実行用トリガーを設定する（毎週月曜AM7:00に起動、祝日に実行しないよう回避）
 function setTrigger() {
+  const date = new Date();
   let dayOfWeek = 0;
   dayOfWeek = date.getDay();
 
