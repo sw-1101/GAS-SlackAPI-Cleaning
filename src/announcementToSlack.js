@@ -1,44 +1,14 @@
-/**
- * Copyright 2024 Sho Watanabe
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-// トリガーを設定する（毎週月曜AM7:00に起動）
+// mainメソッド実行用トリガーを設定する（毎週月曜AM7:00に起動、祝日に実行しないよう回避）
 function setTrigger() {
-  let date = new Date(2024, 4, 4);
-
   let dayOfWeek = 0;
   dayOfWeek = date.getDay();
 
-  if(dayOfWeek == 1){
-    dayOfWeek ++;
-  }
-
-  while(dayOfWeek != 1) {
+  // 実行日が祝日にならないようループ
+  while(isHoliday(date)) {
     date.setDate(date.getDate() + 1);
-    dayOfWeek = date.getDay();
   }
 
-  if(isHoliday(date)) {
-    console.log('しゅくじつだよ')
-    date.setDate(date.getDate() + 1);
-    console.log('実行日：', date)
-  } else {
-    console.log('しゅくじつじゃないよ')
-    console.log('実行日：', date)
-  }
-
+  // 設定した日付の12:00分に実行するトリガーを設定する
   const time = date;
   time.setHours(12);
   time.setMinutes(00);
@@ -50,10 +20,12 @@ function main() {
   const sh = sheet();
   // メンバーが変わったらここの範囲を変更する。詳細は実シート参照
   const ranges = sh.getRange('A2:B7').getValues();
+  // Slackに投稿するメッセージ本文の作成
   const message = getMessage(ranges);
-
-  // postSlackbot(message);
-  // updatePosition(sh, ranges);
+  // Slackへ投稿する
+  postSlackbot(message);
+  // 次回実行用に担当個所を変更する
+  updatePosition(sh, ranges);
 
   // 実行後にトリガーを削除
   delTrigger();
@@ -61,7 +33,9 @@ function main() {
 
 // 既存のトリガーを削除
 function delTrigger() {
+  // 設定されているトリガー一覧を取得
   const triggers = ScriptApp.getProjectTriggers();
+  // main実行用トリガーのみ削除
   for(const trigger of triggers){
     if(trigger.getHandlerFunction() == "main"){
       ScriptApp.deleteTrigger(trigger);
@@ -111,7 +85,8 @@ function updatePosition(sh, ranges) {
   // 掃除機→掃除機（サブ）→コーヒー→コーヒー（サブ）→モップ→スーパーサブの順番で巡回
   const lastPosition = position.pop();
   position.unshift(lastPosition);
-  sh.getRange('B2:B7').setValues(position); // メンバーが変わったらここの範囲を変更する
+  // メンバーが変わったらここの範囲を変更する
+  sh.getRange('B2:B7').setValues(position); 
 }
 
 // シート情報を取得
@@ -138,13 +113,12 @@ function getMessage(ranges) {
 
 // 作成したメッセージをSlackAPIに渡す
 function postSlackbot(message) {
-  //SlackAPIで登録したボットのトークンを設定する
+  //トークン設定
   const token = PropertiesService.getScriptProperties().getProperty("BotToken");
-  //ライブラリから導入したSlackAppを定義し、トークンを設定する
   const slackApp = SlackApp.create(token);
-  //Slackボットがメッセージを投稿するチャンネルを定義する
+  //投稿先のチャンネルを設定
   const channelId = '#わたなべてすと';
-  //SlackAppオブジェクトのpostMessageメソッドでボット投稿を行う
+  //Slackへ投稿
   slackApp.postMessage(channelId, message);
 }
 
@@ -156,6 +130,6 @@ function isHoliday(targetDate) {
   const calendar = CalendarApp.getCalendarById(holidayCalendarId);
   // ターゲットの日付のイベント（祝日）を取得
   const events = calendar.getEventsForDay(targetDate);
-  // イベントが存在するかどうかをチェック（存在すれば祝日、存在しなければ非祝日）
+  // 上記で何らかのイベントを取得している場合、祝日と判定
   return events.length > 0;
 }

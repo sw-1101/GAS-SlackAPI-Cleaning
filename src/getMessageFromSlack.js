@@ -25,8 +25,9 @@ function doPost(e) {
   // スプレッドシートの最後にデータを追加
   sheet.appendRow(data);
 
-  // Slackにメッセージをおうむ返しで送信
-  if (event && event.type === "message" && event.user === "U0517RF7YJG") {
+  // 無限ループ防止のため条件に合ったメッセージを受信時のみ返信する
+  if (event && event.type === "message" && event.bot_id === undefined) {
+    // 現在の担当区分をメッセージにして送信する
     main()
   }
 }
@@ -38,6 +39,7 @@ function main() {
   const ranges = sh.getRange('A2:B7').getValues();
   const message = getMessage(ranges);
 
+  // メッセージ投稿
   postSlackbot(message);
 }
 
@@ -50,7 +52,6 @@ function postSlackbot(message) {
   //Slackボットがメッセージを投稿するチャンネルを定義する
   const channelId = '#わたなべてすと';
   //SlackAppオブジェクトのpostMessageメソッドでボット投稿を行う
-  console.log(message);
   slackApp.postMessage(channelId, message);
 }
 
