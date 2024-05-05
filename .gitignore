@@ -1,0 +1,10 @@
+# 個人情報を含む可能性があるため。
+*.json
+
+# スクリプトの実行に必要なため。
+!appsscript.json
+
+# 拡張子ごと除外
+*.gs
+*.gscript
+*.gsheet
