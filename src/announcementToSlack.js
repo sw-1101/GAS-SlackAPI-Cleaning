@@ -139,7 +139,7 @@ function getMessage(ranges) {
 // 作成したメッセージをSlackAPIに渡す
 function postSlackbot(message) {
   //SlackAPIで登録したボットのトークンを設定する
-  const token = PropertiesService.getScriptPropertied().getProperty("BotToken");
+  const token = PropertiesService.getScriptProperties().getProperty("BotToken");
   //ライブラリから導入したSlackAppを定義し、トークンを設定する
   const slackApp = SlackApp.create(token);
   //Slackボットがメッセージを投稿するチャンネルを定義する
