@@ -16,7 +16,7 @@ function setTrigger() {
   ScriptApp.newTrigger('notifyCleaningPosition').timeBased().at(time).create();
 }
 
-// Slackへのメッセージ投稿メソッドおよび担当個所のローテーションメソッドを呼び出すメインメソッド
+// Slackへのメッセージ投稿メソッドおよび担当個所のローテーションメソッドを呼び出す
 function notifyCleaningPosition() {
   const sh = sheet();
   // メンバーが変わったらここの範囲を変更する。詳細は実シート参照
@@ -36,9 +36,9 @@ function notifyCleaningPosition() {
 function delTrigger() {
   // 設定されているトリガー一覧を取得
   const triggers = ScriptApp.getProjectTriggers();
-  // main実行用トリガーのみ削除
+  // notifyCleaningPosition実行用トリガーのみ削除
   for(const trigger of triggers){
-    if(trigger.getHandlerFunction() == "main"){
+    if(trigger.getHandlerFunction() == "notifyCleaningPosition"){
       ScriptApp.deleteTrigger(trigger);
     }
   }
